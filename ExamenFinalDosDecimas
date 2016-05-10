@@ -1,0 +1,188 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <iso646.h>
+
+typedef struct tCell{
+	int payload;
+	struct tCell *next;
+} Cell;
+
+Cell* agrega(Cell *base, int Dentrada){
+	Cell* reg;
+	reg=malloc(sizeof(Cell));
+    if (reg == NULL) {
+        printf("Ninguno");
+        return NULL;
+    }
+	reg->payload=Dentrada;
+    reg->next = NULL;
+	Cell* cursor = base;
+	while(cursor->next !=NULL){
+		cursor=(Cell*)cursor->next;
+	}
+	cursor->next=reg;
+	return base;
+}
+
+void imprime(Cell *raiz){
+	while(raiz->next !=NULL){
+		printf("%d->",raiz->next->payload);
+		raiz=raiz->next;
+	}
+}
+
+Cell pop(Cell *ruta){
+	if(ruta->next==NULL){return *ruta;}
+	Cell* cursor=ruta;
+	while(((Cell*)cursor->next)->next !=NULL){
+		//printf("%d", cursor->payload);
+		cursor=(Cell*)cursor->next;
+		//printf("%d", cursor->payload);
+	}
+	//printf("%d", cursor->payload);
+	free((void *)cursor->next);
+	//printf("%d", cursor->payload);
+	cursor->next=NULL;
+
+	return *ruta;
+}
+
+Cell erase(Cell *celda, int *contador){
+	while(celda->next!=NULL)
+		pop(celda);
+	return *celda;
+}
+
+Cell borranodo(Cell *lista, int nodo){
+	Cell* cursor=lista;
+	Cell* cambio;
+	for(int i=1; i<nodo; i++){
+		cursor=(Cell*)cursor->next;
+	}
+	//printf("%d",cursor->payload);
+	if(((Cell*)cursor->next)->next==NULL){pop(lista); return *lista;}
+	cambio=((Cell*)cursor->next)->next;
+	free((void*)cursor->next);
+	cursor->next= cambio;
+	return *lista;
+}
+
+void buscanodo(Cell *lista, int nodo){
+
+	Cell* cursor=lista;
+	for(int i=0; i<nodo; i++){
+		cursor=(Cell*)cursor->next;
+	}
+	printf("El nodo ubicado en %d es:%d \n",nodo, cursor->payload);
+}
+
+Cell editanodo(Cell *lista, int nodo, int cambio){
+	Cell* reg;
+	reg=malloc(sizeof(Cell));
+/*    if (reg == NULL) {
+        printf("Ninguno");
+        return NULL;
+    }*/
+	reg->payload=cambio;
+   
+	Cell* cursor=lista;
+	for(int i=1; i<nodo; i++){
+		cursor=(Cell*)cursor->next;
+	}
+
+	 reg->next = ((Cell*)cursor->next)->next;	
+	cursor->next=reg;
+
+	 return *lista;
+}
+
+
+Cell opciones(Cell *base){
+	int opcion=0;
+	int cont=0;
+	bool ev=false;
+	int num;
+	while(ev==false){
+		printf("A continuacion, ingrese una opción: \n0 - Agregar nodo\n1 - Borrar último nodo\n2 - Imprimir lista\n3 - Borrar algún nodo\n4 - Buscar un nodo\n5 - Editar un nodo\n6 - Salir\n");
+		scanf("%d", &opcion);
+		//if(sizeof(opcion) !=sizeof(int)){return *base;}
+
+		if(opcion==0){
+			//printf("%d", base->payload);
+			printf("Dame un numero\n");
+			scanf("%d", &num);	
+			//printf("%d", base->payload);
+			agrega(base, num);
+			//printf("%d", ((Cell*)base->next)->payload);
+			//imprime(base); 
+			cont=cont+1;
+
+		} else if(opcion==1){
+			//printf("%d", cont);
+			pop(base);
+			cont=cont-1;
+			//printf("%d", cont);
+			printf("Último nodo borrado\n");
+
+		} else if(opcion==2){
+			printf("Mostrando lista\n");
+			imprime(base);
+
+		} else if(opcion==3){
+			int nodo=1;
+			printf("De los %d nodos, ¿Qué nodo desea borrar?\n",cont);			
+			scanf("%d", &nodo);
+			//printf("%d", cont);
+			if(nodo>cont or nodo<=0){
+				printf("Error, seleccione un numero válido\n");
+			} else {
+			borranodo(base,nodo);
+			cont=cont-1;
+			}
+			printf("%d", cont);
+
+		} else if(opcion==4){
+			int nodo=1;
+			printf("De los %d nodos, ¿Qué nodo desea buscar?\n", cont);
+			scanf("%d", &nodo);
+			if(nodo>cont or nodo<=0){
+				printf("Error, seleccione un numero válido\n");
+			} else {
+			buscanodo(base, nodo);
+			}
+
+		} else if(opcion==5){
+			int nodo=0;
+			int cambio=0;
+			printf("De los %d nodos, ¿Qué nodo desea cambiar?\n",cont);
+			scanf("%d", &nodo);
+			if(nodo>cont or nodo<=0){
+				printf("Error, selecciona un nodo válido\n");
+			} else {
+			printf("¿Por que nodo lo desea cambiar?\n");
+			scanf("%d", &cambio);
+			editanodo(base,nodo,cambio);
+			}
+
+		} else if(opcion==6){
+			//imprime(base);
+			erase(base,&cont);
+			ev=true;
+			
+		} else {
+			printf("Error, ingrese un numero válido\n");
+		}
+	}
+	return *base;
+}
+
+
+int main(int argc, char* argv[]) {
+	Cell *root;
+	root = (Cell *)malloc(sizeof(Cell));
+	root->payload = -1;
+    root->next = NULL;
+	opciones(root);
+	return 0;
+}
